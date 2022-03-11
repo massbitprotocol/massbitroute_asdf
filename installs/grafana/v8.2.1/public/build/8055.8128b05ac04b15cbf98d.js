@@ -1,0 +1,2 @@
+(self.webpackChunkgrafana=self.webpackChunkgrafana||[]).push([[8055],{"./node_modules/brace/snippets/json.js":()=>{ace.define("ace/snippets/json",["require","exports","module"],(function(e,s,n){"use strict";s.snippetText=void 0,s.scope="json"}))}}]);
+//# sourceMappingURL=8055.8128b05ac04b15cbf98d.js.map

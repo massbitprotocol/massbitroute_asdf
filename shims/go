@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# asdf-plugin: golang 1.17.4
+exec /massbit/massbitroute/app/src/bin/.asdf/bin/asdf exec "go" "$@"
