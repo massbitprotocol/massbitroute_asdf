@@ -8,7 +8,9 @@ module=$3
 
 rm="echo rm"
 
+
 apt install -y build-essential autoconf libtool wget uuid-dev libpcre2-dev cmake python wget uuid-dev
+
 
 shift 3
 add_dynamic_module=""
@@ -230,7 +232,9 @@ _pagespeed() {
 	mkdir -p $dir/pagespeed
 	cd $dir/pagespeed
 
+
 	wget --no-check-certificate -c https://github.com/apache/incubator-pagespeed-ngx/archive/v${NPS_VERSION}.zip
+
 
 	unzip v${NPS_VERSION}.zip
 	nps_dir=$(find . -name "*pagespeed-ngx-${NPS_VERSION}" -type d)
@@ -240,7 +244,9 @@ _pagespeed() {
 	psol_url=https://dl.google.com/dl/page-speed/psol/${NPS_RELEASE_NUMBER}.tar.gz
 	[ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL)
 
+
 	wget --no-check-certificate -c ${psol_url}
+
 
 	tar -xzvf $(basename ${psol_url}) # extracts to psol/
 	#fi
