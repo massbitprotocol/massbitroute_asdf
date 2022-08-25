@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+dist_id=ubuntu
+#$(awk -F'=' '/DISTRIB_ID/{print $2}' /etc/lsb-release)
+dist_release=1804
+#$(awk -F'=' '/DISTRIB_RELEASE/{print $2}' /etc/lsb-release)
+dist_code=$(awk -F'=' '/DISTRIB_CODE/{print $2}' /etc/lsb-release)
+
+_install() {
+	dir=$(dirname $(realpath $0))
+	cd $dir
+	local install_type=$1
+	local version=$2
+	version1=$(echo $version | sed 's/^v//')
+	local install_path=$3
+	tmpd=$(mktemp -d)
+	echo $tmpd
+	# dir=$ASDF_DIR/plugins/openresty/bin
+	cat <<EOF >$install_path/lib.conf
+$install_path/openssl/lib 
+$install_path/pcre/lib 
+$install_path/luajit/lib
+/usr/local/lib
+EOF
+	cp $install_path/lib.conf /etc/ld.so.conf.d/openresty.conf
+	ldconfig
+	cd $tmpd
+	cp $dir/modules.sh $tmpd
+	sed "s/_RESTY_VERSION/$version1/" $dir/openresty.sh >build.sh
+	sed "s/_PREFIX/$(echo $install_path | sed 's/\//\\\//g')/g" -i build.sh
+	sed "s/_DIR/$(echo $dir | sed 's/\//\\\//g')/g" -i build.sh
+	sed "s/_MODULE/all/g" -i build.sh
+	cp $tmpd/build.sh $dir/build.sh
+	bash -x build.sh
+	mv /usr/local/openresty/* $install_path/
+	cp -rf /usr/local/* $ASDF_DIR/installs/local
+	rm -rf $tmpd /tmp/*
+}
+
+echo _install $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
+_install $ASDF_INSTALL_TYPE $ASDF_INSTALL_VERSION $ASDF_INSTALL_PATH
