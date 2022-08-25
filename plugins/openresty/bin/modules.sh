@@ -7,7 +7,9 @@ prefix=$2
 module=$3
 
 rm="echo rm"
-apt install -y build-essential autoconf libtool wget uuid-dev libpcre2-dev cmake python
+
+apt install -y build-essential autoconf libtool wget uuid-dev libpcre2-dev cmake python wget uuid-dev
+
 shift 3
 add_dynamic_module=""
 _lib_jasson() {
@@ -227,7 +229,9 @@ _pagespeed() {
 	$rm -rf $dir/pagespeed
 	mkdir -p $dir/pagespeed
 	cd $dir/pagespeed
-	wget -c https://github.com/apache/incubator-pagespeed-ngx/archive/v${NPS_VERSION}.zip
+
+	wget --no-check-certificate -c https://github.com/apache/incubator-pagespeed-ngx/archive/v${NPS_VERSION}.zip
+
 	unzip v${NPS_VERSION}.zip
 	nps_dir=$(find . -name "*pagespeed-ngx-${NPS_VERSION}" -type d)
 	cd "$nps_dir"
@@ -235,7 +239,9 @@ _pagespeed() {
 	NPS_RELEASE_NUMBER=${NPS_VERSION/stable/}
 	psol_url=https://dl.google.com/dl/page-speed/psol/${NPS_RELEASE_NUMBER}.tar.gz
 	[ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL)
-	wget -c ${psol_url}
+
+	wget --no-check-certificate -c ${psol_url}
+
 	tar -xzvf $(basename ${psol_url}) # extracts to psol/
 	#fi
 	add_dynamic_module="$add_dynamic_module --add-dynamic-module=$dir/pagespeed/incubator-pagespeed-ngx-$NPS_VERSION"
