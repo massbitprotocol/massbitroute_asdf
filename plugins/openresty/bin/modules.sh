@@ -5,19 +5,18 @@ DEBIAN_FRONTEND=noninteractive
 dir=$1
 prefix=$2
 module=$3
+git_clone="git clone --depth 1"
 
 rm="echo rm"
 
-
-apt install -y build-essential autoconf libtool wget uuid-dev libpcre2-dev cmake python wget uuid-dev
-
+apt install -y build-essential autoconf libtool wget uuid-dev libpcre2-dev cmake python wget uuid-dev libyajl-dev liblua5.1-0-dev
 
 shift 3
 add_dynamic_module=""
 _lib_jasson() {
 	cd $dir
 	$rm -rf jansson
-	git clone https://github.com/akheron/jansson.git
+	$git_clone https://github.com/akheron/jansson.git
 	cd jansson
 	autoreconf -i
 	./configure
@@ -27,7 +26,7 @@ _lib_jasson() {
 _lib_maxmind() {
 	cd $dir
 	$rm -rf libmaxminddb
-	git clone --recursive https://github.com/maxmind/libmaxminddb
+	$git_clone --recursive https://github.com/maxmind/libmaxminddb
 	cd libmaxminddb
 	./bootstrap
 	./configure
@@ -37,7 +36,7 @@ _lib_maxmind() {
 _lib_lmdb() {
 	cd $dir
 	$rm -rf lmdb
-	if [ ! -d "lmdb" ]; then git clone https://github.com/LMDB/lmdb.git; fi
+	if [ ! -d "lmdb" ]; then $git_clone https://github.com/LMDB/lmdb.git; fi
 	cd lmdb/libraries/liblmdb/
 	git pull origin master
 	make -j$(nproc) install
@@ -48,7 +47,7 @@ _lib_sregex() {
 	cd $dir
 	$rm -rf sregex
 	if [ ! -d "sregex" ]; then
-		git clone https://github.com/openresty/sregex.git
+		$git_clone https://github.com/openresty/sregex.git
 	fi
 	cd sregex
 	git pull origin master
@@ -59,7 +58,7 @@ _lib_hyperscan() {
 	cd $dir
 	$rm -rf hyperscan
 	if [ ! -d "hyperscan" ]; then
-		git clone https://github.com/intel/hyperscan.git
+		$git_clone https://github.com/intel/hyperscan.git
 	fi
 	cd hyperscan
 	git pull origin master
@@ -99,7 +98,7 @@ _lib_jwt() {
 _lib_xtea() {
 	cd $dir
 	$rm -rf xxtea-c
-	if [ ! -d "xxtea-c" ]; then git clone https://github.com/xxtea/xxtea-c.git; fi
+	if [ ! -d "xxtea-c" ]; then $git_clone https://github.com/xxtea/xxtea-c.git; fi
 	cd xxtea-c
 	cmake .
 	make -j$(nproc) install
@@ -107,13 +106,13 @@ _lib_xtea() {
 _lib_gd() {
 	cd $dir
 	$rm -rf libimagequant
-	git clone https://github.com/ImageOptim/libimagequant.git
+	$git_clone https://github.com/ImageOptim/libimagequant.git
 	cd libimagequant
 	./configure
 	make libimagequant
 	make install
 	$rm -rf libgd
-	git clone https://github.com/libgd/libgd.git
+	$git_clone https://github.com/libgd/libgd.git
 	cd libgd
 	./configure
 	make
@@ -122,7 +121,7 @@ _lib_gd() {
 _lib_small_light() {
 	cd $dir
 	$rm -rf ngx_small_light
-	if [ ! -d "ngx_small_light" ]; then git clone https://github.com/cubicdaiya/ngx_small_light.git; fi
+	if [ ! -d "ngx_small_light" ]; then $git_clone https://github.com/cubicdaiya/ngx_small_light.git; fi
 	cd ngx_small_light
 	git pull origin master
 	./setup --with-imlib2 --with-gd
@@ -130,7 +129,7 @@ _lib_small_light() {
 _lib_ssdeep() {
 	cd $dir
 	$rm -rf ssdeep
-	if [ ! -d "ssdeep" ]; then git clone https://github.com/ssdeep-project/ssdeep.git; fi
+	if [ ! -d "ssdeep" ]; then $git_clone https://github.com/ssdeep-project/ssdeep.git; fi
 	cd ssdeep
 	git pull origin master
 	./bootstrap
@@ -141,7 +140,7 @@ _lib_ssdeep() {
 _lib_injection() {
 	cd $dir
 	$rm -rf libinjection
-	git clone https://github.com/client9/libinjection.git
+	$git_clone https://github.com/client9/libinjection.git
 	cd libinjection/src
 	#	make all
 	make install
@@ -150,7 +149,7 @@ _lib_injection() {
 _ngx_brotli() {
 	cd $dir
 	$rm -rf ngx_brotli
-	git clone https://github.com/google/ngx_brotli.git
+	$git_clone https://github.com/google/ngx_brotli.git
 	cd ngx_brotli
 	git submodule update --init
 }
@@ -161,14 +160,14 @@ _ngx_modsecurity() {
 	sleep 3
 	cd $dir
 	$rm -rf ModSecurity
-	git clone --depth 1 -b v3/master --single-branch https://github.com/SpiderLabs/ModSecurity
-	# git clone --depth 1 https://github.com/SpiderLabs/ModSecurity
+	$git_clone --depth 1 -b v3/master --single-branch https://github.com/SpiderLabs/ModSecurity
+	# $git_clone --depth 1 https://github.com/SpiderLabs/ModSecurity
 	cd ModSecurity
 	git pull origin v3/master
 	git submodule init
 	git submodule update
 	./build.sh
-	./configure --with-lmdb
+	./configure --with-lmdb --with-pcre2
 	make
 	make -j$(nproc) install
 }
@@ -199,8 +198,8 @@ _module() {
 	add_dynamic_module="$add_dynamic_module --add-dynamic-module=$dir/$module/$srcdir $_opt"
 	if [ ! -d "$dir/$module" ]; then
 		cd $dir
-		echo git clone $url
-		git clone $url
+		echo $git_clone $_url
+		$git_clone $_url
 	else
 		cd $dir/$module
 		git pull origin master
@@ -232,9 +231,7 @@ _pagespeed() {
 	mkdir -p $dir/pagespeed
 	cd $dir/pagespeed
 
-
 	wget --no-check-certificate -c https://github.com/apache/incubator-pagespeed-ngx/archive/v${NPS_VERSION}.zip
-
 
 	unzip v${NPS_VERSION}.zip
 	nps_dir=$(find . -name "*pagespeed-ngx-${NPS_VERSION}" -type d)
@@ -244,9 +241,7 @@ _pagespeed() {
 	psol_url=https://dl.google.com/dl/page-speed/psol/${NPS_RELEASE_NUMBER}.tar.gz
 	[ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL)
 
-
 	wget --no-check-certificate -c ${psol_url}
-
 
 	tar -xzvf $(basename ${psol_url}) # extracts to psol/
 	#fi
@@ -258,22 +253,24 @@ _pagespeed() {
 # 	--add-dynamic-module=$dir/pagespeed/incubator-pagespeed-ngx-$NPS_VERSION \
 # 	$add_dynamic_module
 
+# urls="\
+# 	https://github.com/SpiderLabs/ModSecurity-nginx.git \
+# https://github.com/winshining/nginx-http-flv-module.git \
+# https://github.com/SpiderLabs/ModSecurity-nginx.git \
+# https://github.com/nginx-modules/ngx_cache_purge.git \
+# https://github.com/arut/nginx-live-module.git \
+# https://github.com/arut/nginx-ts-module.git \
+# https://github.com/kaltura/nginx-vod-module.git \
+# "
 urls="\
+	https://github.com/nginx-modules/ngx_cache_purge.git \
 	https://github.com/SpiderLabs/ModSecurity-nginx.git \
-"
-urls2="\
 	https://github.com/Taymindis/nginx-link-function \
-	https://github.com/winshining/nginx-http-flv-module.git \
-	https://github.com/SpiderLabs/ModSecurity-nginx.git \
 	https://github.com/vozlt/nginx-module-sts.git \
 	https://github.com/vozlt/nginx-module-stream-sts.git \
 	https://github.com/vozlt/nginx-module-vts.git \
 	https://github.com/baysao/ngx_stream_dns_proxy_module.git \
-	https://github.com/nginx-modules/ngx_cache_purge.git \
-	https://github.com/arut/nginx-live-module.git \
-	https://github.com/arut/nginx-ts-module.git \
 	https://github.com/leev/ngx_http_geoip2_module.git \
-	https://github.com/kaltura/nginx-vod-module.git \
 "
 urls1="\
 	https://github.com/nbs-system/naxsi.git|naxsi_src \
@@ -319,16 +316,14 @@ fi
 
 echo $add_dynamic_module
 cd $dir
-echo ./configure --prefix=$prefix $@ \
-	$add_dynamic_module
+echo ./configure --prefix=$prefix $@ $add_dynamic_module
 sleep 3
-eval ./configure --prefix=$prefix $@ \
-	$add_dynamic_module
+eval ./configure --prefix=$prefix $@ $add_dynamic_module
 exit 0
 _remove() {
 	#cd $dir/build/nginx-1.15.8;./configure
 	cd $dir
-	if [ ! -d "redis_nginx_adapter" ]; then git clone https://github.com/wandenberg/redis_nginx_adapter.git; fi
+	if [ ! -d "redis_nginx_adapter" ]; then $git_clone https://github.com/wandenberg/redis_nginx_adapter.git; fi
 	cd redis_nginx_adapter
 	git pull origin master
 	./configure --with-nginx-dir=$dir/build/nginx-1.15.8
@@ -339,7 +334,7 @@ _remove() {
         https://github.com/weibocom/nginx-upsync-module.git \
         https://github.com/xiaokai-wang/nginx-stream-upsync-module.git \
         https://github.com/vozlt/nginx-module-sysguard.git \
-        #git clone https://github.com/GUI/nginx-upstream-dynamic-servers.git
+        #$git_clone https://github.com/GUI/nginx-upstream-dynamic-servers.git
         #https://github.com/nginx-modules/ngx_http_acme_module.git \
         https://github.com/kwojtek/nginx-rtmpt-proxy-module.git \
         https://github.com/baysao/nginx_requestid.git \
@@ -363,5 +358,5 @@ _remove() {
         https://github.com/FRiCKLE/ngx_slowfs_cache.git \
         https://github.com/baysao/nginx-upstream-fair.git \
         "
-	#git clone https://github.com/fooinha/nginx-json-log.git
+	#$git_clone https://github.com/fooinha/nginx-json-log.git
 }
