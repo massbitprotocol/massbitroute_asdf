@@ -92,7 +92,7 @@ _init() {
 		DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
 			build-essential \
 			ca-certificates \
-			curl \
+			curl git wget \
 			gettext-base \
 			libgd-dev \
 			libgeoip-dev \
