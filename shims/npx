@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-# asdf-plugin: nodejs 16.14.0
-exec /massbit/massbitroute/app/src/bin/.asdf/bin/asdf exec "npx" "$@"
